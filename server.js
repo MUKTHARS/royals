@@ -94,6 +94,7 @@ function sameOriginJson(req, res, next) {
   next();
 }
 app.use('/api', sameOriginJson);
+require('./backup').mount(app); // append-only Google Sheet backup of every change (see backup.js)
 
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
