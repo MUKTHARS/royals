@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: royals-gym
+    runtime: node
+    plan: free
+    buildCommand: npm ci --omit=optional
+    startCommand: npm start
+    healthCheckPath: /healthz
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: ADMIN_EMAIL
+        value: admin@royalsgym.in
+      - key: ADMIN_PASSWORD_HASH
+        sync: false   # paste the Argon2id hash in the Render dashboard
+      - key: JWT_SECRET
+        generateValue: true
+      - key: DATABASE_URL
+        sync: false   # paste the Neon connection string

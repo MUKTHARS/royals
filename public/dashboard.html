@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Royals Gym · Dashboard</title>
+  <link rel="icon" href="/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <!-- Replace public/logo.svg with your own logo (or change this src to /logo.png) -->
+      <img src="/logo.svg" alt="Royals Gym logo" class="brand-logo" width="44" height="44">
+      <div>
+        <div class="brand-name">Royals Gym</div>
+        <div class="brand-sub">Members dashboard</div>
+      </div>
+    </div>
+    <button id="logout-btn" class="btn btn-ghost">Log out</button>
+  </header>
+
+  <main class="container">
+    <section class="month-bar" aria-label="Fee month">
+      <button id="prev-month" class="month-nav" type="button" aria-label="Previous month">‹</button>
+      <div class="month-title">
+        <span class="month-caption">Fees for</span>
+        <span id="month-label">—</span>
+      </div>
+      <button id="next-month" class="month-nav" type="button" aria-label="Next month">›</button>
+      <button id="this-month" class="btn btn-ghost-dark btn-sm" type="button" hidden>Back to this month</button>
+      <a id="download-pdf" class="btn btn-ghost-dark btn-sm download-pdf" href="/api/reports/fees.pdf" download>⤓ Download PDF</a>
+    </section>
+
+    <section class="stats" aria-label="Summary">
+      <div class="stat"><span class="stat-label">Members</span><span class="stat-value" id="stat-total">0</span></div>
+      <div class="stat"><span class="stat-label">Paid this month</span><span class="stat-value ok" id="stat-paid">0</span></div>
+      <div class="stat"><span class="stat-label">Pending this month</span><span class="stat-value warn" id="stat-unpaid">0</span></div>
+      <div class="stat"><span class="stat-label">Coming</span><span class="stat-value" id="stat-coming">0</span></div>
+    </section>
+
+    <section class="toolbar">
+      <input id="search" type="search" placeholder="Search name, card, mobile, age, date, paid…" aria-label="Search members">
+      <select id="filter-fee" aria-label="Filter by fees">
+        <option value="all">All fees</option>
+        <option value="paid">Paid</option>
+        <option value="unpaid">Not paid</option>
+        <option value="dues">Has months due</option>
+      </select>
+      <select id="filter-att" aria-label="Filter by attendance">
+        <option value="all">All attendance</option>
+        <option value="coming">Coming</option>
+        <option value="not">Not coming</option>
+      </select>
+      <button id="add-btn" class="btn btn-primary">+ Add member</button>
+    </section>
+
+    <section class="table-wrap">
+      <table class="members">
+        <thead>
+          <tr>
+            <th>Card no.</th>
+            <th>Name</th>
+            <th>Mobile</th>
+            <th>Age</th>
+            <th>Joined</th>
+            <th id="fees-th">Fees</th>
+            <th>Attendance</th>
+            <th class="actions-col"><span class="sr-only">Actions</span></th>
+          </tr>
+        </thead>
+        <tbody id="members-body"></tbody>
+      </table>
+      <p id="empty" class="empty" hidden>No members yet. Click “+ Add member” to add the first one.</p>
+      <p id="loading" class="empty">Loading…</p>
+    </section>
+  </main>
+
+  <dialog id="member-dialog" aria-labelledby="dialog-title">
+    <form id="member-form" method="dialog" novalidate>
+      <h2 id="dialog-title">Add member</h2>
+
+      <label for="f-name">Name</label>
+      <input id="f-name" name="name" type="text" maxlength="100" required autocomplete="off">
+
+      <label for="f-mobile">Mobile number</label>
+      <input id="f-mobile" name="mobile" type="tel" inputmode="tel" maxlength="16" placeholder="98765 43210" required autocomplete="off">
+
+      <div class="row-2">
+        <div>
+          <label for="f-age">Age</label>
+          <input id="f-age" name="age" type="number" min="5" max="100" inputmode="numeric" required>
+        </div>
+        <div>
+          <label for="f-card">Membership card no.</label>
+          <input id="f-card" name="card_no" type="text" maxlength="20" placeholder="E-123" required autocomplete="off" autocapitalize="characters">
+        </div>
+      </div>
+
+      <label for="f-date">Date of joining</label>
+      <input id="f-date" name="join_date" type="date" required>
+
+      <fieldset class="field-box" id="fee-box">
+        <legend id="fee-legend">Fees</legend>
+        <label class="check">
+          <input id="f-fee" name="fee_paid" type="checkbox">
+          <span>Fees received</span>
+          <span id="f-fee-status" class="badge badge-unpaid">Not paid</span>
+        </label>
+        <p id="fee-note" class="hint"></p>
+      </fieldset>
+
+      <fieldset class="field-box">
+        <legend>Attendance</legend>
+        <div class="segmented">
+          <label><input type="radio" name="attending" value="true" checked><span>Coming</span></label>
+          <label><input type="radio" name="attending" value="false"><span>Not coming</span></label>
+        </div>
+      </fieldset>
+
+      <p id="form-error" class="form-error" role="alert" hidden></p>
+
+      <div class="dialog-actions">
+        <button type="button" id="cancel-btn" class="btn btn-ghost-dark">Cancel</button>
+        <button type="submit" id="save-btn" class="btn btn-primary">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="history-dialog" class="history-dialog" aria-labelledby="history-title">
+    <div class="history-inner">
+      <div class="history-head">
+        <div>
+          <h2 id="history-title">Fee history</h2>
+          <p id="history-sub" class="muted"></p>
+        </div>
+        <button type="button" id="history-close" class="btn btn-ghost-dark btn-sm">Close</button>
+      </div>
+      <p id="history-summary" class="history-summary"></p>
+      <div id="history-grid" class="history-grid"></div>
+    </div>
+  </dialog>
+
+  <dialog id="pay-dialog" class="pay-dialog" aria-labelledby="pay-title">
+    <form id="pay-form" method="dialog" novalidate>
+      <h2 id="pay-title">Confirm fees received</h2>
+      <p class="pay-summary">
+        <strong id="pay-name"></strong><br>
+        <span id="pay-month" class="muted"></span>
+      </p>
+      <label for="pay-date">Date received</label>
+      <input id="pay-date" type="date" required>
+      <label for="pay-input">Type <strong>RECEIVED</strong> to confirm</label>
+      <input id="pay-input" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="RECEIVED">
+      <p class="hint">Once confirmed, this month is locked as Paid and cannot be changed back.</p>
+      <div class="dialog-actions">
+        <button type="button" id="pay-cancel" class="btn btn-ghost-dark">Cancel</button>
+        <button type="submit" id="pay-ok" class="btn btn-primary" disabled>Confirm paid</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="/dashboard.js"></script>
+</body>
+</html>

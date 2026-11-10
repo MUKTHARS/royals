@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="Royals Gym">
+  <rect width="120" height="120" rx="26" fill="#14161c"/>
+  <path d="M28 78 L22 40 L42 56 L60 32 L78 56 L98 40 L92 78 Z" fill="#d4a63a"/>
+  <rect x="28" y="82" width="64" height="9" rx="3" fill="#d4a63a"/>
+  <circle cx="22" cy="38" r="5" fill="#f1cf72"/>
+  <circle cx="60" cy="30" r="5" fill="#f1cf72"/>
+  <circle cx="98" cy="38" r="5" fill="#f1cf72"/>
+</svg>
