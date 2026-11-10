@@ -15,13 +15,22 @@ const report = require('./report');
 const PORT = process.env.PORT || 3000;
 const IS_PROD = process.env.NODE_ENV === 'production';
 const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || 'admin@royalsgym.in').trim().toLowerCase();
-const ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD_HASH;
+// Tolerate values pasted with surrounding quotes/spaces (e.g. copied from .env into a hosting dashboard).
+const ADMIN_PASSWORD_HASH = (process.env.ADMIN_PASSWORD_HASH || '').trim().replace(/^(['"])(.*)\1$/, '$2').trim();
 const JWT_SECRET = process.env.JWT_SECRET;
 const COOKIE_NAME = 'rg_session';
 const SESSION_HOURS = 12;
 
-if (!ADMIN_PASSWORD_HASH || !ADMIN_PASSWORD_HASH.startsWith('$argon2id$')) {
-  console.error('ADMIN_PASSWORD_HASH is missing or not an Argon2id hash. Run: npm run hash-password -- "YourPassword"');
+if (!ADMIN_PASSWORD_HASH) {
+  console.error('ADMIN_PASSWORD_HASH is not set. Add it to the environment (value starts with $argon2id$).');
+  process.exit(1);
+}
+if (!/^\$argon2id\$v=\d+\$m=\d+,t=\d+,p=\d+\$[A-Za-z0-9+/]+\$[A-Za-z0-9+/]+$/.test(ADMIN_PASSWORD_HASH)) {
+  console.error(
+    `ADMIN_PASSWORD_HASH is set but is not a valid Argon2id hash (length ${ADMIN_PASSWORD_HASH.length}, ` +
+      `starts with "${ADMIN_PASSWORD_HASH.slice(0, 10)}"). It must start with $argon2id$ and be copied in full. ` +
+      'Generate one with: npm run hash-password -- "YourPassword"'
+  );
   process.exit(1);
 }
 if (!JWT_SECRET || JWT_SECRET.length < 32) {

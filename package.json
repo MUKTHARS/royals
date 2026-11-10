@@ -10,7 +10,7 @@
     "hash-password": "node scripts/hash-password.js"
   },
   "engines": {
-    "node": ">=20"
+    "node": "24.x"
   },
   "dependencies": {
     "argon2": "^0.41.1",
